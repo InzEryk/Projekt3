@@ -1,0 +1,63 @@
+{% extends "tournament/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    {% for single_tournament in tournament %}
+    <h1>{{ single_tournament.name }}</h1>
+        <div class="d-flex flex-row">
+            {% for pos in bracket %}
+                {% for editable in pos %}
+                {% if editable.open %}
+                <a href="{% url 'score' editable.id %}">
+                    <div class="card border-primary" style="width: 18rem;">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                            <p class="float-start">{{ editable.player_one.name }}</p>
+                            {% for number in winner %}
+                                {% if number.duel.id == editable.id %}
+                                    <span class="badge bg-primary rounded-pill float-end">{{ number.player_one_score }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </li>
+                        <li class="list-group-item">
+                            <p class="float-start">{{ editable.player_two.name }}</p>
+                            {% for number in winner %}
+                                {% if number.duel.id == editable.id %}
+                                    <span class="badge bg-primary rounded-pill float-end">{{ number.player_two_score }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </li>
+                        </ul>
+                    </div>
+                </a>
+                {% else %}
+                <div class="card" style="width: 18rem;">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <p class="float-start">{{ editable.player_one.name }}</p>
+                            {% for number in winner %}
+                                {% if number.duel.id == editable.id %}
+                                    <span class="badge bg-primary rounded-pill float-end">{{ number.player_one_score }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </li>
+                        <li class="list-group-item">
+                            <p class="float-start">{{ editable.player_two.name }}</p>
+                            {% for number in winner %}
+                                {% if number.duel.id == editable.id %}
+                                    <span class="badge bg-primary rounded-pill float-end">{{ number.player_two_score }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+                 <br>
+                {% endfor %}
+            </div>
+
+            {% endfor %}
+    {% endfor %}
+
+{% endblock content %}

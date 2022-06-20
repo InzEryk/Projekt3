@@ -1,0 +1,16 @@
+{% extends "tournament/base.html" %}
+
+{% block content %}
+
+    <h1>History</h1>
+{% for tournament in history %}
+    {% if tournament.closed == True %}
+        <h3><a href="{% url 'show_history' tournament.id %}">{{ tournament }} </a></h3>
+        <br>
+        <br>
+    {% endif %}
+{% endfor %}
+
+
+{% endblock %}
+

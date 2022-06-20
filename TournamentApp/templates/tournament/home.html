@@ -1,0 +1,15 @@
+{% extends "tournament/base.html" %}
+
+{% block content %}
+<body>
+<center>
+    {% if user.is_authenticated %}
+        <h1>You are logged, you can now create tournament</h1>
+    {% else %}
+         <h1>Click on 'All Tournaments' to view tournament list, or register to create your own tournament</h1>
+    {% endif %}
+</center>
+</body>
+
+{% endblock %}
+

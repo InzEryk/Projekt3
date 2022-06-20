@@ -1,0 +1,38 @@
+{% extends "tournament/base.html" %}
+
+{% block content %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<center>
+    <h1>Login</h1>
+    <br>
+
+
+    <form action="" method=POST>
+        {% csrf_token %}
+
+          <div class="mb-3 row">
+    <label for="username" class="col-sm-2 col-form-label">User Name</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="username">
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
+    <div class="col-sm-10">
+      <input type="password" class="form-control" name="password">
+    </div>
+  </div>
+
+        <input type="submit" value="Submit"
+               class="btn btn-secondary">
+    </form>
+</center>
+</body>
+
+{% endblock %}
+

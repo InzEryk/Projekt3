@@ -1,0 +1,25 @@
+{% extends "tournament/base.html" %}
+
+{% block content %}
+
+<body>
+    <h1>Add tournament</h1>
+    <br>
+    <br>
+    {% if submitted %}
+        Your tournament was added
+    {% else %}
+
+    <form action="" method=POST>
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <input type="submit" value="Submit"
+               class="btn btn-secondary">
+    </form>
+    {% endif %}
+</body>
+
+{% endblock %}
+

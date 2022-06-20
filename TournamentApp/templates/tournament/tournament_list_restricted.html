@@ -1,0 +1,21 @@
+{% extends "tournament/base.html" %}
+
+{% block content %}
+
+    <h1>Tournaments</h1>
+    <br>
+    {% for tournament in tournament_list_restricted %}
+        {% if tournament.closed == False %}
+        {% now "Y-m-d H:i" as todays_date %}
+            {% if todays_date < tournament.started_date|date:"Y-m-d H:i" %}
+                <h3>Tournament will start {{ tournament.started_date|date:"Y-m-d H:i" }} </h3>
+                <br>
+                <br>
+            {% else %}
+                <h3><a href="{% url 'show_tournament' tournament.id %}">{{ tournament }} </a></h3>
+                <br>
+                <br>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}

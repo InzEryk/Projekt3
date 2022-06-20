@@ -1,0 +1,16 @@
+{% extends "tournament/base.html" %}
+
+{% block content %}
+
+    <h1>Tournaments</h1>
+{% for tournament in tournament_list %}
+    {% if tournament.closed == False %}
+        <h3><a href="{% url 'show_tournament' tournament.id %}">{{ tournament }} </a></h3>
+        <br>
+        <br>
+    {% endif %}
+{% endfor %}
+
+
+{% endblock %}
+

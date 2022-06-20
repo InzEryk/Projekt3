@@ -1,0 +1,44 @@
+{% extends "tournament/base.html" %}
+
+{% block content %}
+
+<body>
+<h1>Tournament details</h1>
+<br>
+ Name: {{ tournament }}
+<br>
+Starting date: {{ tournament.started_date|date:"Y-m-d H:i" }}
+<br>
+Number of player: {{ tournament.number_of_players }}
+<br>
+<br>
+{% if user.is_superuser %}
+        <a href="{% url 'edit_tournament' tournament.id %}" type="button" class="btn btn-warning">Edit</a>
+        <a href="{% url 'delete_tournament' tournament.id %}" type="button" class="btn btn-warning">Delete</a>
+        <a href="{% url 'edit_bracket' tournament.id %}" type="button" class="btn btn-outline-dark me-2">Edit bracket</a>
+        {% if tournament.closed == False %}
+            <a href="{% url 'open_close'%}?tournament_id= {{tournament.pk}}" type="button" class="btn btn-outline-dark me-2">Close tournament</a>
+        {% endif %}
+{% elif user.is_authenticated %}
+    {% now "Y-m-d H:i" as todays_date %}
+    {% if todays_date > tournament.started_date|date:"Y-m-d H:i" %}
+        <h3>Tournament already started at {{ tournament.started_date|date:"Y-m-d H:i" }} </h3>
+        <br>
+        <br>
+        <a href="{% url 'edit_bracket' tournament.id %}" type="button" class="btn btn-outline-dark me-2">Edit bracket</a>
+        {% if tournament.closed == False %}
+            <a href="{% url 'open_close'%}?tournament_id= {{tournament.pk}}" type="button" class="btn btn-outline-dark me-2">Close tournament</a>
+        {% endif %}
+    {% else %}
+        <a href="{% url 'edit_tournament' tournament.id %}" type="button" class="btn btn-warning">Edit</a>
+        <a href="{% url 'delete_tournament' tournament.id %}" type="button" class="btn btn-warning">Delete</a>
+    {% endif %}
+{% else %}
+    <h1>Sorry! You must be logged in to edit or delete tournaments</h1>
+{% endif %}
+<a href="{% url 'bracket' tournament.id %}" type="button" class="btn btn-outline-dark me-2">Show bracket</a>
+
+</body>
+
+{% endblock %}
+
