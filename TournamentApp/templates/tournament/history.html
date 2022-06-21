@@ -1,15 +1,38 @@
 {% extends "tournament/base.html" %}
 
 {% block content %}
+<br>
+<h1>History</h1>
+    <br>
+    <form action="" method=POST>
+        {% csrf_token %}
 
-    <h1>History</h1>
-{% for tournament in history %}
-    {% if tournament.closed == True %}
-        <h3><a href="{% url 'show_history' tournament.id %}">{{ tournament }} </a></h3>
-        <br>
-        <br>
+        {{ form.as_p }}
+
+        <input type="submit" value="Submit"
+               class="btn btn-secondary">
+    </form>
+<table class="table table-bordered table-striped table-hover">
+        {% for tournament in history %}
+            {% if tournament.closed == True %}
+                {% if date|date:"Y-m-d H:i" >= tournament.started_date|date:"Y-m-d H:i" %}
+            <tr>
+                <td>
+                    <a href="{% url 'show_history' tournament.id %}">{{ tournament }} </a>
+                </td>
+                <td align="right">
+                {% if user.is_superuser %}
+                        <a href="{% url 'edit_tournament' tournament.id %}" type="button" class="btn btn-warning">Edit</a>
+                        <a href="{% url 'delete_tournament' tournament.id %}" type="button" class="btn btn-warning">Delete</a>
+                {% else %}
+                    <h1>Sorry! You must be superuser in to edit or delete closed tournaments</h1>
+                {% endif %}
+                </td>
+            </tr>
     {% endif %}
-{% endfor %}
+            {% endif %}
+        {% endfor %}
+    </table>
 
 
 {% endblock %}

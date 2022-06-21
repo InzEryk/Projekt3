@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 
 
-SIZE_BOARDS= (
+SIZE_BOARDS = (
     (4, 4),
     (8, 8),
     (16, 16),
@@ -54,3 +54,6 @@ class Winner(models.Model):
 
     def __str__(self):
         return f"{self.duel} {self.player_one_score} {self.player_two_score}"
+
+class History(models.Model):
+    date = models.DateTimeField()

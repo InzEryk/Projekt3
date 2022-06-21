@@ -1,16 +1,35 @@
 {% extends "tournament/base.html" %}
 
 {% block content %}
-
-    <h1>Tournaments</h1>
-{% for tournament in tournament_list %}
-    {% if tournament.closed == False %}
-        <h3><a href="{% url 'show_tournament' tournament.id %}">{{ tournament }} </a></h3>
-        <br>
-        <br>
-    {% endif %}
-{% endfor %}
-
+<br>
+<h1>Tournaments</h1>
+    <br>
+    <table class="table table-bordered table-striped table-hover">
+        {% for tournament in tournament_list %}
+            {% if tournament.closed == False %}
+            <tr>
+                <td>
+                    <a href="{% url 'show_tournament' tournament.id %}">{{ tournament }} </a>
+                </td>
+                <td align="right">
+                {% if user.is_superuser %}
+                        <a href="{% url 'edit_tournament' tournament.id %}" type="button" class="btn btn-warning">Edit</a>
+                        <a href="{% url 'delete_tournament' tournament.id %}" type="button" class="btn btn-warning">Delete</a>
+                {% elif user.is_authenticated %}
+                    {% now "Y-m-d H:i" as todays_date %}
+                    {% if todays_date > tournament.started_date|date:"Y-m-d H:i" %}
+                        Tournament already started at {{ tournament.started_date|date:"Y-m-d H:i" }}
+                    {% else %}
+                        <a href="{% url 'edit_tournament' tournament.id %}" type="button" class="btn btn-warning">Edit</a>
+                        <a href="{% url 'delete_tournament' tournament.id %}" type="button" class="btn btn-warning">Delete</a>
+                    {% endif %}
+                {% else %}
+                    <h1>Sorry! You must be logged in to edit or delete tournaments</h1>
+                {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
 
 {% endblock %}
-

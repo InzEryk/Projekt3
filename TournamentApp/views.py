@@ -1,15 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-
-from .functions import players_in_round, create_bracket, number_of_rounds, number_of_duels
-from .models import Tournament, MatchPair
-from .forms import TournamentForm, PlayerForm, WinnerForm
+import datetime
+from .functions import players_in_round, number_of_rounds, number_of_duels
+from .models import Tournament, MatchPair, Player
+from .forms import TournamentForm, PlayerForm, WinnerForm, HistoryForm
 from django.contrib import messages
-from django.forms import formset_factory
 
 
 def show_tournament(request, tournament_id):
     tournament = Tournament.objects.get(pk=tournament_id)
-    return render(request, 'tournament/show_tournament.html', {'tournament': tournament})
+    players = tournament.player_set.all()
+    return render(request, 'tournament/show_tournament.html', {'tournament': tournament, 'players': players})
 
 
 def all_tournaments(request):
@@ -34,7 +34,8 @@ def add_tournament(request):
             tournament = form.save(commit=False)
             tournament.owner = request.user.id
             tournament.save()
-            return redirect('/add_tournament/' + str(tournament.id) + '/')
+            messages.success(request, 'New tournament created')
+            return redirect('tournament_list')
     else:
         form = TournamentForm
         if 'submitted' in request.GET:
@@ -45,11 +46,18 @@ def add_tournament(request):
 def edit_tournament(request, tournament_id):
     tournament = Tournament.objects.get(pk=tournament_id)
     form = TournamentForm(request.POST or None, instance=tournament)
+    given_number = int(form['number_of_players'].value())
+    size = tournament.number_of_players
+    print(given_number)
     if request.user.id == tournament.owner or request.user.is_superuser:
         if form.is_valid():
-            form.save()
-            messages.success(request, ("Tournament updated"))
-            return redirect('tournament_list')
+            if given_number < size:
+                messages.success(request, ("Nie można dać mniejszej ilości graczy"))
+                return redirect('tournament_list')
+            else:
+                form.save()
+                messages.success(request, ("Tournament updated"))
+                return redirect('tournament_list')
     else:
         messages.success(request, ("You are not an owner or superuser"))
         return redirect('tournament_list')
@@ -69,30 +77,62 @@ def delete_tournament(request, tournament_id):
         return redirect('tournament_list')
 
 
-def add_players(request, tournament_id):
-    tournament = Tournament.objects.filter(id=tournament_id)
-    size = tournament[0].number_of_players
-    AddPlayersForm = formset_factory(
-        PlayerForm,
-        extra=size,
-        min_num=size,
-        max_num=size,
-    )
-    if request.method == 'POST':
-        player_form = AddPlayersForm(request.POST)
-        if player_form.is_valid():
-            for form in player_form.forms:
-                player = form.save(commit=False)
-                player.tournament = tournament[0]
-                player.save()
-            create_bracket(tournament)
-            messages.success(request, 'New tournament created')
-            return redirect('tournament_list')
+def add_player(request):
+    if request.method == "POST":
+        form = PlayerForm(request.POST)
+        tournament = Tournament.objects.get(pk=form['tournament'].value())
+        players_count = tournament.player_set.all().count()
+        size = tournament.number_of_players
+        if request.user.id == tournament.owner or request.user.is_superuser:
+            if players_count == size:
+                messages.success(request, ("Osiagnieto limit graczy"))
+                return redirect('tournament_list')
+            else:
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, 'New player created')
+                    return redirect('tournament_list')
         else:
-            messages.success(request, ("Draw is not an option"))
+            messages.success(request, ("You are not an owner or superuser"))
+            return redirect('tournament_list')
     else:
-        if request.method == 'GET':
-            return render(request, 'tournament/add_players.html', {'form_player': AddPlayersForm})
+        form = PlayerForm
+    return render(request, 'tournament/add_tournament.html', {'form': form})
+
+
+def update_player(request, player_id):
+    player = Player.objects.get(pk=player_id)
+    form = PlayerForm(request.POST or None, instance=player)
+    tournament = Tournament.objects.get(pk=form['tournament'].value())
+    players_count = tournament.player_set.all().count()
+    size = tournament.number_of_players
+    if request.user.id == tournament.owner or request.user.is_superuser:
+        if form.is_valid():
+            if players_count >= size:
+                messages.success(request, ("Osiagnieto limit graczy"))
+                return redirect('tournament_list')
+            else:
+                form.save()
+                messages.success(request, ("Player updated"))
+                return redirect('tournament_list')
+    else:
+        messages.success(request, ("You are not a superuser"))
+        return redirect('tournament_list')
+    return render(request, 'tournament/update_player.html',
+                  {'player': player,
+                   'form': form})
+
+
+def delete_player(request, player_id):
+    player = Player.objects.get(pk=player_id)
+    owner = player.tournament.owner
+    if request.user.id == owner or request.user.is_superuser:
+        player.delete()
+        messages.success(request, ("Player deleted"))
+        return redirect('tournament_list')
+    else:
+        messages.success(request, ("You are not a superuser"))
+        return redirect('tournament_list')
 
 
 def bracket_tournament(request, tournament_id):
@@ -164,7 +204,17 @@ def duel_winner(request, id):
 
 def history(request):
     tournament = Tournament.objects.all()
-    return render(request, 'tournament/history.html', {'history': tournament})
+    form = HistoryForm(request.POST)
+    date = datetime.datetime.now()
+    if form.is_valid():
+        date_string = form['date'].value()
+        date = datetime.datetime.strptime(date_string, "%Y-%m-%d %H:%M")
+        print(date_string)
+        print(date)
+        form.save()
+        messages.success(request, 'Sorted')
+        return redirect('history')
+    return render(request, 'tournament/history.html', {'history': tournament, 'form': form, 'date': date})
 
 
 def open_close(request):
@@ -180,4 +230,5 @@ def open_close(request):
 
 def show_history(request, tournament_id):
     tournament = Tournament.objects.get(pk=tournament_id)
-    return render(request, 'tournament/show_history.html', {'tournament': tournament})
+    players = tournament.player_set.all()
+    return render(request, 'tournament/show_history.html', {'tournament': tournament, 'players': players})

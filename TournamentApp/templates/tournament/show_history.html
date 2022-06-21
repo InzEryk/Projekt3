@@ -3,29 +3,21 @@
 {% block content %}
 
 <body>
-<h1>Tournament details</h1>
-<br>
- Name: {{ tournament }}
-<br>
-Starting date: {{ tournament.started_date|date:"Y-m-d H:i" }}
-<br>
-Number of player: {{ tournament.number_of_players }}
-<br>
-<br>
-{% if user.is_superuser %}
-        <a href="{% url 'edit_tournament' tournament.id %}" type="button" class="btn btn-warning">Edit</a>
-        <a href="{% url 'delete_tournament' tournament.id %}" type="button" class="btn btn-warning">Delete</a>
-        <a href="{% url 'edit_bracket' tournament.id %}" type="button" class="btn btn-outline-dark me-2">Edit bracket</a>
-        {% if tournament.closed == False %}
-            <a href="{% url 'open_close'%}?tournament_id= {{tournament.pk}}" type="button" class="btn btn-outline-dark me-2">Close tournament</a>
-        {% endif %}
-{% elif user.is_authenticated %}
-
-{% else %}
-    <h1>Sorry! You must be logged in to edit or delete tournaments</h1>
-{% endif %}
-<a href="{% url 'bracket' tournament.id %}" type="button" class="btn btn-outline-dark me-2">Show bracket</a>
-
+<h1>History tournament details</h1>
+<div class="card">
+    <div class="card-header">
+        <h3>{{ tournament }} </h3>
+        </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Starting date: {{ tournament.started_date|date:"Y-m-d H:i" }}</li>
+                <li class="list-group-item">Number of player: {{ tournament.number_of_players }}</li>
+                <li class="list-group-item">Players:
+                    {% for player in players %}
+                        {{ player }}
+                    {% endfor %}
+                </li>
+            </ul>
+        </div>
 </body>
 
 {% endblock %}

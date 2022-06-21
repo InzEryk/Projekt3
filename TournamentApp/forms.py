@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Tournament, Winner, Player
+from .models import Tournament, Winner, Player, History
 
 
 class TournamentForm(ModelForm):
@@ -18,7 +18,13 @@ class TournamentForm(ModelForm):
 class PlayerForm(ModelForm):
     class Meta:
         model = Player
-        fields = ('name',)
+        fields = ('tournament', 'name',)
+
+
+class HistoryForm(ModelForm):
+    class Meta:
+        model = History
+        fields = ('date',)
 
 
 class WinnerForm(ModelForm):

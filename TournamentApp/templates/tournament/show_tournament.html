@@ -4,40 +4,73 @@
 
 <body>
 <h1>Tournament details</h1>
-<br>
- Name: {{ tournament }}
-<br>
-Starting date: {{ tournament.started_date|date:"Y-m-d H:i" }}
-<br>
-Number of player: {{ tournament.number_of_players }}
-<br>
-<br>
-{% if user.is_superuser %}
-        <a href="{% url 'edit_tournament' tournament.id %}" type="button" class="btn btn-warning">Edit</a>
-        <a href="{% url 'delete_tournament' tournament.id %}" type="button" class="btn btn-warning">Delete</a>
-        <a href="{% url 'edit_bracket' tournament.id %}" type="button" class="btn btn-outline-dark me-2">Edit bracket</a>
-        {% if tournament.closed == False %}
-            <a href="{% url 'open_close'%}?tournament_id= {{tournament.pk}}" type="button" class="btn btn-outline-dark me-2">Close tournament</a>
-        {% endif %}
-{% elif user.is_authenticated %}
-    {% now "Y-m-d H:i" as todays_date %}
-    {% if todays_date > tournament.started_date|date:"Y-m-d H:i" %}
-        <h3>Tournament already started at {{ tournament.started_date|date:"Y-m-d H:i" }} </h3>
-        <br>
-        <br>
-        <a href="{% url 'edit_bracket' tournament.id %}" type="button" class="btn btn-outline-dark me-2">Edit bracket</a>
-        {% if tournament.closed == False %}
-            <a href="{% url 'open_close'%}?tournament_id= {{tournament.pk}}" type="button" class="btn btn-outline-dark me-2">Close tournament</a>
-        {% endif %}
-    {% else %}
-        <a href="{% url 'edit_tournament' tournament.id %}" type="button" class="btn btn-warning">Edit</a>
-        <a href="{% url 'delete_tournament' tournament.id %}" type="button" class="btn btn-warning">Delete</a>
-    {% endif %}
-{% else %}
-    <h1>Sorry! You must be logged in to edit or delete tournaments</h1>
-{% endif %}
-<a href="{% url 'bracket' tournament.id %}" type="button" class="btn btn-outline-dark me-2">Show bracket</a>
+<div class="card">
+    <div class="card-header">
+        <h3>{{ tournament }} </h3>
+        </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Starting date: {{ tournament.started_date|date:"Y-m-d H:i" }}</li>
+                <li class="list-group-item">Number of player: {{ tournament.number_of_players }}</li>
+                <li class="list-group-item">Players:
+                    {% for player in players %}
+                        {{ player }}
+                    {% endfor %}
+                </li>
+            </ul>
+        </div>
+        {% if user.is_superuser %}
+            <div class="dropdown">
+                {% if tournament.closed == False %}
+                    <a href="{% url 'open_close'%}?tournament_id= {{tournament.pk}}" type="button" class="btn btn-outline-dark me-2">Close tournament</a>
+                {% endif %}
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Delete player
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% for player in players %}
+                        <a class="dropdown-item" href="{% url 'delete_player' player.id %}">{{ player }}</a>
+                    {% endfor %}
+                </div>
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Update player
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% for player in players %}
+                        <a class="dropdown-item" href="{% url 'update_player' player.id %}">{{ player }}</a>
+                    {% endfor %}
+                </div>
+            </div>
 
+        {% elif user.is_authenticated %}
+            {% now "Y-m-d H:i" as todays_date %}
+            {% if todays_date > tournament.started_date|date:"Y-m-d H:i" %}
+                Tournament already started at {{ tournament.started_date|date:"Y-m-d H:i" }}
+                <div class="dropdown">
+                {% if tournament.closed == False %}
+                    <a href="{% url 'open_close'%}?tournament_id= {{tournament.pk}}" type="button" class="btn btn-outline-dark me-2">Close tournament</a>
+                {% endif %}
+            {% else %}
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Delete player
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% for player in players %}
+                            <a class="dropdown-item" href="{% url 'delete_player' player.id %}">{{ player }}</a>
+                        {% endfor %}
+                    </div>
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton4" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Update player
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% for player in players %}
+                            <a class="dropdown-item" href="{% url 'update_player' player.id %}">{{ player }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            Sorry! You must be logged in to update or delete players
+        {% endif %}
 </body>
 
 {% endblock %}
